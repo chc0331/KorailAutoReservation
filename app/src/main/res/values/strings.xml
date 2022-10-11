@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">KorailReservationApp</string>
+    <string name="accessibility_service_label">accessibility service</string>
+    <string name="accessibility_service_description">accessibility_service</string>
+    <string name="power">power</string>
+    <string name="volume">volume+</string>
+    <string name="scroll">scroll</string>
+    <string name="swipe">swipe</string>
+</resources>
