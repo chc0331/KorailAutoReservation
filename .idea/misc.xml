@@ -21,6 +21,9 @@
         <entry key="..\:/Users/admin/AndroidStudioProjects/KorailReservationApp/app/src/main/res/xml/accessibility_service_config.xml" value="0.1" />
         <entry key="..\:/Users/admin/AndroidStudioProjects/KorailReservationApp/app/src/main/res/xml/action_bar.xml" value="0.1" />
         <entry key="..\:/Users/admin/AndroidStudioProjects/KorailReservationApp/app/src/main/res/xml/global_action_bar_service.xml" value="0.21041666666666667" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/reservation/KoralAutoReservation/app/src/main/res/layout/action_bar.xml" value="0.1" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/reservation/KoralAutoReservation/app/src/main/res/layout/reservation_service_layout.xml" value="0.253125" />
+        <entry key="..\:/Users/admin/AndroidStudioProjects/reservation/KoralAutoReservation/app/src/main/res/layout/ticket_list.xml" value="0.253125" />
       </map>
     </option>
   </component>

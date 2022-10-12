@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.korailreservationapp.databinding.TicketListBinding
 import com.example.korailreservationapp.service.data.Ticket
 
-class TicketListAdapter : ListAdapter<Ticket, TicketListAdapter.ViewHolder>(TicketDiffCallback) {
+class TicketListAdapter(private val checkListener: (idx: Int, seatType: Int, checked: Boolean) -> Unit) :
+    ListAdapter<Ticket, TicketListAdapter.ViewHolder>(TicketDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.create(parent)
@@ -16,16 +17,26 @@ class TicketListAdapter : ListAdapter<Ticket, TicketListAdapter.ViewHolder>(Tick
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val ticket = getItem(position)
-        holder.bind(ticket)
+        holder.bind(ticket, position, checkListener)
     }
 
     class ViewHolder(private val binding: TicketListBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(ticket: Ticket) {
+        fun bind(
+            ticket: Ticket,
+            idx: Int,
+            listener: (idx: Int, seatType: Int, checked: Boolean) -> Unit
+        ) {
             binding.run {
                 startInfoContent.text = ticket.startInfo
                 destinationInfoContent.text = ticket.destinationInfo
+                seat.setOnCheckedChangeListener { _, checked ->
+                    listener(idx, 0, checked)
+                }
+                specialSeat.setOnCheckedChangeListener { _, checked ->
+                    listener(idx, 1, checked)
+                }
             }
         }
 
