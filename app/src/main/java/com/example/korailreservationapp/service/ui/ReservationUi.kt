@@ -1,13 +1,17 @@
 package com.example.korailreservationapp.service.ui
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
+import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Build
+import android.os.SystemClock
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.ImageButton
@@ -24,6 +28,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
 
 @RequiresApi(Build.VERSION_CODES.N)
 class ReservationUi(private val service: KorailReservationService) {
@@ -33,7 +39,6 @@ class ReservationUi(private val service: KorailReservationService) {
     private var wm = service.getSystemService(AccessibilityService.WINDOW_SERVICE) as WindowManager
     private var layoutParams = WindowManager.LayoutParams()
     private var expanded = false
-    private var collectRunning = false
     private val adapter = TicketListAdapter { idx, seatType, checked ->
         checkedState[idx] =
             if (checked && seatType == 0)
@@ -68,7 +73,7 @@ class ReservationUi(private val service: KorailReservationService) {
     private fun initComponents() {
         binding.run {
             commandButton.setOnClickListener {
-                start.toggleVisibility()
+                refresh.toggleVisibility()
                 exit.toggleVisibility()
                 reservation.toggleVisibility()
             }
@@ -77,7 +82,7 @@ class ReservationUi(private val service: KorailReservationService) {
 
             hide.setOnClickListener {
                 if (expanded) {
-                    start.hide()
+                    refresh.hide()
                     exit.hide()
                     reservation.hide()
                     commandButton.hide()
@@ -89,41 +94,34 @@ class ReservationUi(private val service: KorailReservationService) {
                 } else {
                     ticketList.show()
                     commandButton.show()
-                    layoutParams.height = convertLayoutParamsDp(400F)
+                    layoutParams.height = convertLayoutParamsDp(500F)
                     wm.updateViewLayout(binding.root, layoutParams)
                     expanded = true
                     (it as ImageView).setImageResource(R.drawable.upward)
                 }
             }
 
-            val list = ArrayList<Ticket>()
-            adapter.submitList(list)
-            ticketList.adapter = adapter
-            start.setOnClickListener {
-                if (collectRunning) {
-                    collectRunning = false
-                    (it as ImageButton).setImageResource(R.drawable.play)
-                } else {
-                    collectRunning = true
-                    (it as ImageButton).setImageResource(R.drawable.stop)
-                    collectData()
-                }
+            refresh.setOnClickListener {
+                collectData()
             }
 
             reservation.setOnClickListener {
                 for (idx in 0 until checkedState.size) {
                     if (checkedState[idx] > 0) {
                         val ticket = adapter.currentList[idx]
-                        val result =
-                            ticket.seat.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD.id)
                         val rect = Rect()
                         ticket.seat.getBoundsInScreen(rect)
-                        //todo : need to implement touch by rect coordinate
-                        Log.d("heec.choi","rect : "+rect.centerY()+" "+rect.centerX())
+
+                        ReservationController.click(
+                            rect.centerX().toFloat(),
+                            rect.centerY().toFloat(),
+                            service
+                        )
                     }
                 }
             }
 
+            ticketList.adapter = adapter
         }
     }
 

@@ -11,6 +11,8 @@
     <color name="gray">#5C5555</color>
     <color name="dark_gray">#3E3C3C</color>
     <color name="gray_white">#787474</color>
-
+    <color name="title_bar_color">#266E73</color>
+    <color name="recyclerview_color">#7E9FA1</color>
+    <color name="floating_color">#A6BCBC</color>
 
 </resources>

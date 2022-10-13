@@ -8,7 +8,7 @@
         android:layout_height="wrap_content">
 
         <ImageButton
-            android:id="@+id/start"
+            android:id="@+id/refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/reservation"
@@ -16,7 +16,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/button_shape"
-            android:src="@drawable/play"
+            android:src="@drawable/refresh"
             android:visibility="gone" />
 
         <ImageButton
@@ -52,20 +52,78 @@
             android:layout_marginRight="12dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/button_shape"
-            android:backgroundTint="@color/white"
             android:src="@drawable/menu"
             android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/title_bar_shape"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:gravity="center_horizontal"
+                android:text="열차"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="출발"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="도착"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="일반석"
+
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="우등석"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="20dp"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ticket_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_above="@+id/hide"
+            android:layout_below="@+id/title"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
             android:layout_toStartOf="@+id/command_button"
-            android:background="@color/dark_gray"
+            android:background="@drawable/recyclerview_shape"
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 

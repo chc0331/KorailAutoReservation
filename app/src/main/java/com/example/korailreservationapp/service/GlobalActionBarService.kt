@@ -124,7 +124,7 @@ class GlobalActionBarService : AccessibilityService() {
         button.setOnClickListener {
             val swipePath = Path()
             swipePath.moveTo(1000f, 1000f)
-            swipePath.lineTo(100f, 100f)
+//            swipePath.lineTo(100f, 100f)
             val gestureBuilder = GestureDescription.Builder()
             gestureBuilder.addStroke(GestureDescription.StrokeDescription(swipePath, 0, 500))
             dispatchGesture(gestureBuilder.build(), null, null)

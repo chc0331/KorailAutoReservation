@@ -1,14 +1,18 @@
 package com.example.korailreservationapp.service.ui
 
-import android.util.Log
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
+import android.graphics.Path
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.korailreservationapp.service.KorailReservationService
 import com.example.korailreservationapp.service.data.Ticket
 import com.example.korailreservationapp.service.data.Train
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.withContext
 
+@RequiresApi(Build.VERSION_CODES.N)
 class ReservationController {
 
     companion object {
@@ -40,9 +44,17 @@ class ReservationController {
                     )
                 }
             }
-            Log.d("heec.choi","ticket List : "+ticketList)
             emit(ticketList)
         }.flowOn(Dispatchers.IO)
+
+
+        fun click(x: Float, y: Float, service: AccessibilityService) {
+            val path = Path()
+            path.moveTo(x, y)
+            val gestureBuilder = GestureDescription.Builder()
+            gestureBuilder.addStroke(GestureDescription.StrokeDescription(path, 0, 500))
+            service.dispatchGesture(gestureBuilder.build(), null, null)
+        }
     }
 
 

@@ -29,6 +29,7 @@ class TicketListAdapter(private val checkListener: (idx: Int, seatType: Int, che
             listener: (idx: Int, seatType: Int, checked: Boolean) -> Unit
         ) {
             binding.run {
+                trainType.text = ticket.train
                 startInfoContent.text = ticket.startInfo
                 destinationInfoContent.text = ticket.destinationInfo
                 seat.setOnCheckedChangeListener { _, checked ->
