@@ -106,6 +106,7 @@ class ReservationUi(private val service: KorailReservationService) {
             }
 
             reservation.setOnClickListener {
+                //todo : need to implement reservation auto click logic
                 for (idx in 0 until checkedState.size) {
                     if (checkedState[idx] > 0) {
                         val ticket = adapter.currentList[idx]
