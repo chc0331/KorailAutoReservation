@@ -28,7 +28,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="12dp"
             android:background="@drawable/button_shape"
-            android:src="@drawable/check"
+            android:src="@drawable/play"
             android:visibility="gone" />
 
         <ImageButton
@@ -122,6 +122,7 @@
             android:layout_alignParentStart="true"
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_toStartOf="@+id/command_button"
             android:background="@drawable/recyclerview_shape"
             android:visibility="gone"
@@ -142,6 +143,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
+            android:layout_marginTop="6dp"
             android:src="@drawable/downward" />
     </RelativeLayout>
 </layout>
