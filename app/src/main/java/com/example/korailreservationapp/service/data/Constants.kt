@@ -5,3 +5,7 @@ sealed class Train(val name: String) {
     object SaeMauel : Train("새마을")
     object KTX : Train("KTX")
 }
+
+const val KORAIL_PKG = "com.korail.talk"
+const val BEFORE_DAY = "이전날"
+const val AFTER_DAY = "다음날"

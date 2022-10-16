@@ -4,12 +4,14 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.N)
 object AutoClickCommand {
 
     fun click(x: Float, y: Float, service: AccessibilityService) {
+        Log.d("heec.choi", "click : x y " + x + y)
         val path = Path()
         path.moveTo(x, y)
         val gestureBuilder = GestureDescription.Builder()
