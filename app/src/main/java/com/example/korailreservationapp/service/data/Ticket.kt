@@ -9,4 +9,16 @@ data class Ticket(
     val destinationInfo: CharSequence,
     val seat: AccessibilityNodeInfo,
     val specialSeat: AccessibilityNodeInfo
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (other is Ticket) {
+            if (train != other.train)
+                return false
+            if (startInfo != other.startInfo)
+                return false
+            if (destinationInfo != other.destinationInfo)
+                return false
+        }
+        return true
+    }
+}

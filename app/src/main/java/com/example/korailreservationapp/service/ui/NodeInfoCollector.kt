@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 @RequiresApi(Build.VERSION_CODES.N)
-class ReservationUiController(private val service: KorailReservationService) {
+class NodeInfoCollector(private val service: KorailReservationService) {
     private var beforeNode: AccessibilityNodeInfo? = null
     private var afterNode: AccessibilityNodeInfo? = null
 
@@ -55,12 +55,5 @@ class ReservationUiController(private val service: KorailReservationService) {
         return ticketList
     }
 
-    suspend fun moveScrollUp() {
-        AutoClickCommand.swipe(1000F, 500F, 1000F, 2000F, service)
-    }
-
-    suspend fun moveScrollDown() {
-        AutoClickCommand.swipe(1000F, 2000F, 1000F, 500F, service)
-    }
 }
 

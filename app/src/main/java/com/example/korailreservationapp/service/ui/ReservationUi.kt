@@ -3,7 +3,6 @@ package com.example.korailreservationapp.service.ui
 import android.accessibilityservice.AccessibilityService
 import android.graphics.PixelFormat
 import android.os.Build
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -14,20 +13,19 @@ import com.example.korailreservationapp.R
 import com.example.korailreservationapp.databinding.ReservationServiceLayoutBinding
 import com.example.korailreservationapp.service.KorailReservationService
 import com.example.korailreservationapp.service.autoclick.AutoClickCommand
-import com.example.korailreservationapp.service.data.AFTER_DAY
-import com.example.korailreservationapp.service.data.BEFORE_DAY
 import com.example.korailreservationapp.service.data.Ticket
-import com.example.korailreservationapp.utils.*
+import com.example.korailreservationapp.utils.hide
+import com.example.korailreservationapp.utils.show
+import com.example.korailreservationapp.utils.toggleVisibility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.N)
 class ReservationUi(private val service: KorailReservationService) {
 
-    private var uiController: ReservationUiController
+    private var collector: NodeInfoCollector
     private var checkedState = ArrayList<Int>()
     private var binding: ReservationServiceLayoutBinding
     private var wm = service.getSystemService(AccessibilityService.WINDOW_SERVICE) as WindowManager
@@ -48,6 +46,7 @@ class ReservationUi(private val service: KorailReservationService) {
     }
     private var beforeNode: AccessibilityNodeInfo? = null
     private var afterNode: AccessibilityNodeInfo? = null
+    private var command: AutoClickCommand
 
     init {
         layoutParams.apply {
@@ -66,7 +65,8 @@ class ReservationUi(private val service: KorailReservationService) {
             wm.addView(root, layoutParams)
         }
         initComponents()
-        uiController = ReservationUiController(service)
+        collector = NodeInfoCollector(service)
+        command = AutoClickCommand(service)
     }
 
     private fun initComponents() {
@@ -97,53 +97,19 @@ class ReservationUi(private val service: KorailReservationService) {
                     reservation.setImageResource(R.drawable.play)
                     expand()
                 } else {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        checkedSeatList.clear()
-                        collapse()
-                        for (idx in 0 until checkedState.size) {
-                            if (checkedState[idx] > 0) {
-                                val ticket = adapter.currentList[idx]
-                                checkedSeatList.add(Pair(ticket, checkedState[idx]))
-                            }
-                        }
-                        serviceRunning = true
-                        reservation.setImageResource(R.drawable.stop)
-                        //checkedSeatList : 매크로 실행할 예매표
-                        for (ticket: Pair<Ticket, Int> in checkedSeatList) {
-                            if (ticket.second.isNormalSeat()) {
-                            }
-                        }
-                        for (num: Int in 0..15) {
-                            delay(200)
-                            uiController.moveScrollUp()
-                        }
-
-                        uiController.collectPrevNextNode().collectLatest {
-                            for (node: AccessibilityNodeInfo in it) {
-                                if (node.text.equals(BEFORE_DAY)) {
-                                    beforeNode = node
-                                }
-                                if (node.text.equals(AFTER_DAY)) {
-                                    afterNode = node
-                                }
-                            }
-                            afterNode?.getPosition()?.let { pos ->
-                                AutoClickCommand.click(
-                                    pos.first,
-                                    pos.second,
-                                    service
-                                )
-                            }
-                            delay(1000)
-                            beforeNode?.getPosition()?.let { pos ->
-                                AutoClickCommand.click(
-                                    pos.first,
-                                    pos.second,
-                                    service
-                                )
-                            }
+                    checkedSeatList.clear()
+                    collapse()
+                    for (idx in 0 until checkedState.size) {
+                        if (checkedState[idx] > 0) {
+                            val ticket = adapter.currentList[idx]
+                            checkedSeatList.add(Pair(ticket, checkedState[idx]))
                         }
                     }
+                    serviceRunning = true
+                    reservation.setImageResource(R.drawable.stop)
+
+                    val controller = ReservationController(service)
+                    controller.startAutoReservation(checkedSeatList)
                 }
             }
 
@@ -178,7 +144,7 @@ class ReservationUi(private val service: KorailReservationService) {
 
     private fun collectTickets() {
         CoroutineScope(Dispatchers.Main).launch {
-            uiController.collectTickets().collectLatest {
+            collector.collectTickets().collectLatest {
                 checkedState = MutableList(it.size) { 0 } as ArrayList<Int>
                 adapter.submitList(it)
             }
