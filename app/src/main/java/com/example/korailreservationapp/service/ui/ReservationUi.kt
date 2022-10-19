@@ -7,7 +7,6 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.WindowManager
-import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
 import com.example.korailreservationapp.R
 import com.example.korailreservationapp.databinding.ReservationServiceLayoutBinding
@@ -31,7 +30,6 @@ class ReservationUi(private val service: KorailReservationService) {
     private var wm = service.getSystemService(AccessibilityService.WINDOW_SERVICE) as WindowManager
     private var layoutParams = WindowManager.LayoutParams()
     private var expanded = false
-    private var serviceRunning = false
     private var checkedSeatList = ArrayList<Pair<Ticket, Int>>()
     private val adapter = TicketListAdapter { idx, seatType, checked ->
         checkedState[idx] =
@@ -44,9 +42,8 @@ class ReservationUi(private val service: KorailReservationService) {
             else
                 checkedState[idx] xor (1 shl 1)
     }
-    private var beforeNode: AccessibilityNodeInfo? = null
-    private var afterNode: AccessibilityNodeInfo? = null
     private var command: AutoClickCommand
+    private var controller: ReservationController
 
     init {
         layoutParams.apply {
@@ -67,6 +64,7 @@ class ReservationUi(private val service: KorailReservationService) {
         initComponents()
         collector = NodeInfoCollector(service)
         command = AutoClickCommand(service)
+        controller = ReservationController(service)
     }
 
     private fun initComponents() {
@@ -92,10 +90,9 @@ class ReservationUi(private val service: KorailReservationService) {
             }
 
             reservation.setOnClickListener {
-                if (serviceRunning) {
-                    serviceRunning = false
-                    reservation.setImageResource(R.drawable.play)
-                    expand()
+                if (controller.serviceState.value) {
+                    controller.stopAutoReservation()
+
                 } else {
                     checkedSeatList.clear()
                     collapse()
@@ -105,11 +102,18 @@ class ReservationUi(private val service: KorailReservationService) {
                             checkedSeatList.add(Pair(ticket, checkedState[idx]))
                         }
                     }
-                    serviceRunning = true
-                    reservation.setImageResource(R.drawable.stop)
-
-                    val controller = ReservationController(service)
                     controller.startAutoReservation(checkedSeatList)
+                }
+            }
+
+
+            CoroutineScope(Dispatchers.Main).launch {
+                controller.serviceState.collectLatest {
+                    //todo : need to implement stateflow like SingleEvent LiveData
+                    if (it)
+                        reservation.setImageResource(R.drawable.stop)
+                    else
+                        reservation.setImageResource(R.drawable.play)
                 }
             }
 

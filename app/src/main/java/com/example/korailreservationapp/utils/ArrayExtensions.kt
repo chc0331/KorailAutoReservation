@@ -10,6 +10,17 @@ fun List<Ticket>.containsTicket(ticket: Ticket): Boolean {
     return false
 }
 
+fun List<Pair<Ticket, Int>>.containsTicket(ticket: Ticket): Int {
+    var state = 0
+    for ((_ticket, _state) in this) {
+        if (ticket == _ticket) {
+            state = _state
+            break
+        }
+    }
+    return state
+}
+
 fun ArrayList<Int>.isNormalSeat(idx: Int): Boolean {
     return this[idx] and (1 shl 0) > 0
 }
