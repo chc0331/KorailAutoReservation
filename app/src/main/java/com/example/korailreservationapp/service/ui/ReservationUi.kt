@@ -7,6 +7,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.korailreservationapp.R
 import com.example.korailreservationapp.databinding.ReservationServiceLayoutBinding
@@ -44,6 +45,7 @@ class ReservationUi(private val service: KorailReservationService) {
     }
     private var command: AutoClickCommand
     private var controller: ReservationController
+    private var serviceRunning = false
 
     init {
         layoutParams.apply {
@@ -61,10 +63,11 @@ class ReservationUi(private val service: KorailReservationService) {
         ).apply {
             wm.addView(root, layoutParams)
         }
-        initComponents()
         collector = NodeInfoCollector(service)
         command = AutoClickCommand(service)
         controller = ReservationController(service)
+        initComponents()
+        observeController()
     }
 
     private fun initComponents() {
@@ -90,34 +93,39 @@ class ReservationUi(private val service: KorailReservationService) {
             }
 
             reservation.setOnClickListener {
-                if (controller.serviceState.value) {
+                if (serviceRunning) {
                     controller.stopAutoReservation()
-
+                    serviceRunning = false
                 } else {
+                    serviceRunning = true
                     checkedSeatList.clear()
-                    collapse()
                     for (idx in 0 until checkedState.size) {
                         if (checkedState[idx] > 0) {
                             val ticket = adapter.currentList[idx]
                             checkedSeatList.add(Pair(ticket, checkedState[idx]))
                         }
                     }
-                    controller.startAutoReservation(checkedSeatList)
+                    if (checkedSeatList.isEmpty())
+                        Toast.makeText(service, "선택된 티켓이 없습니다.", Toast.LENGTH_SHORT).show()
+                    else {
+                        collapse()
+                        controller.startAutoReservation(checkedSeatList)
+                    }
                 }
             }
-
-
-            CoroutineScope(Dispatchers.Main).launch {
-                controller.serviceState.collectLatest {
-                    //todo : need to implement stateflow like SingleEvent LiveData
-                    if (it)
-                        reservation.setImageResource(R.drawable.stop)
-                    else
-                        reservation.setImageResource(R.drawable.play)
-                }
-            }
-
             ticketList.adapter = adapter
+        }
+    }
+
+    private fun observeController() = CoroutineScope(Dispatchers.Main).launch {
+        controller.serviceState.collect {
+            if (it) {
+                Toast.makeText(service, "Auto reservation start", Toast.LENGTH_SHORT).show()
+                binding.reservation.setImageResource(R.drawable.stop)
+            } else {
+                Toast.makeText(service, "Auto reservation stop", Toast.LENGTH_SHORT).show()
+                binding.reservation.setImageResource(R.drawable.play)
+            }
         }
     }
 
@@ -159,6 +167,10 @@ class ReservationUi(private val service: KorailReservationService) {
         TypedValue.COMPLEX_UNIT_DIP,
         value, service.resources.displayMetrics
     ).toInt()
+
+    fun onDestroy() {
+
+    }
 }
 
 

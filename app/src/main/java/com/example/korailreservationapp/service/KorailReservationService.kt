@@ -6,10 +6,12 @@ import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.korailreservationapp.R
 import com.example.korailreservationapp.service.ui.ReservationUi
 
+@RequiresApi(Build.VERSION_CODES.N)
 class KorailReservationService : AccessibilityService() {
 
     private lateinit var serviceUi: ReservationUi
@@ -56,5 +58,14 @@ class KorailReservationService : AccessibilityService() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceUi.onDestroy()
+    }
+
+    fun stoppedByTouch() {
+        Toast.makeText(this, "서비스가 중단되었습니다.", Toast.LENGTH_SHORT).show()
+        disableSelf()
+    }
 
 }

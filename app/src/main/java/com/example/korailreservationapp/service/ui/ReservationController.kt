@@ -11,27 +11,28 @@ import com.example.korailreservationapp.service.data.BEFORE_DAY
 import com.example.korailreservationapp.service.data.SOLD_OUT
 import com.example.korailreservationapp.service.data.Ticket
 import com.example.korailreservationapp.utils.containsTicket
+import com.example.korailreservationapp.utils.getPosition
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
+
+const val SERVICE_RUNNING_MAX_TIME = 10 * 60000
 
 @RequiresApi(Build.VERSION_CODES.N)
 class ReservationController(private val service: KorailReservationService) {
 
+    private val TAG = this.javaClass.simpleName
     private var collector = NodeInfoCollector(service)
     private var command = AutoClickCommand(service)
-    private var beforeNode: AccessibilityNodeInfo? = null
-    private var afterNode: AccessibilityNodeInfo? = null
+    private var prevDay: AccessibilityNodeInfo? = null
+    private var nextDay: AccessibilityNodeInfo? = null
     private var job: Job? = null
-    private val _serviceState = MutableStateFlow(false)
-    var serviceState: StateFlow<Boolean> = _serviceState
-
-    private val _serviceFinish = MutableStateFlow(false)
-    var serviceFinish: StateFlow<Boolean> = _serviceFinish
+    private val _serviceState = MutableSharedFlow<Boolean>()
+    var serviceState: SharedFlow<Boolean> = _serviceState
 
     fun startAutoReservation(checkedTicket: List<Pair<Ticket, Int>>) =
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             //1. get next, prev nodeInfo
             _serviceState.emit(true)
             delay(200)
@@ -39,18 +40,37 @@ class ReservationController(private val service: KorailReservationService) {
             delay(500)
             collectPrefNextNode()
 
-            var findNode: AccessibilityNodeInfo? = null
+            var findNode: AccessibilityNodeInfo?
+            var startTime = System.currentTimeMillis()
+
             job = launch {
                 while (true) {
-                    //2. find correct screen
+                    if ((System.currentTimeMillis() - startTime) > SERVICE_RUNNING_MAX_TIME) {
+                        _serviceState.emit(false)
+                        break
+                    }
+
+                    //update new screen
                     command.moveLongScrollUp()
+                    delay(500)
+                    nextDay?.let {
+                        command.click(it.getPosition().first, it.getPosition().second)
+                    }
+                    delay(1000)
+                    prevDay?.let {
+                        command.click(it.getPosition().first, it.getPosition().second)
+                    }
+                    delay(1000)
+
+                    //find correct screen
                     findScreen(checkedTicket)
 
-                    //3. check if ticket can reserve
+                    //check if ticket can reserve
                     findNode = checkIfTicketsReservable(checkedTicket)
                     if (findNode != null) {
+                        Log.d(TAG, "findNode!!!")
                         _serviceState.emit(false)
-                        cancel()
+                        break
                     }
                 }
             }
@@ -69,10 +89,10 @@ class ReservationController(private val service: KorailReservationService) {
         collector.collectPrevNextNode().collectLatest {
             for (node: AccessibilityNodeInfo in it) {
                 if (node.text.equals(BEFORE_DAY)) {
-                    beforeNode = node
+                    prevDay = node
                 }
                 if (node.text.equals(AFTER_DAY)) {
-                    afterNode = node
+                    nextDay = node
                 }
             }
         }
@@ -85,6 +105,11 @@ class ReservationController(private val service: KorailReservationService) {
                     while (true) {
                         var contain = true
                         collector.collectTickets().collect {
+                            if (it.isEmpty()) {
+                                //todo : need to implement service finish when screen is not on ticket reservation list screen.
+//                                service.stoppedByTouch()
+//                                cancel()
+                            }
                             for (item in checkedTicket) {
                                 val ticket = item.first
                                 if (!it.containsTicket(ticket)) {

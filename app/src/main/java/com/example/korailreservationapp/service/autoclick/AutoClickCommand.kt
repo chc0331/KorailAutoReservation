@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,7 +33,7 @@ class AutoClickCommand(private val service: AccessibilityService) {
     }
 
     suspend fun moveLongScrollUp() {
-        swipe(1000F, 500F, 1000F, 2000F, 1)
+        swipe(1000F, 1850F, 1000F, 2000F, 1)
     }
 
     suspend fun moveShortcutScrollDown() = withContext(Dispatchers.Main) {

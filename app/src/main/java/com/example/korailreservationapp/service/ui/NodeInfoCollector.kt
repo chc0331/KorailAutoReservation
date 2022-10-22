@@ -4,7 +4,6 @@ import android.os.Build
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
 import com.example.korailreservationapp.service.KorailReservationService
-import com.example.korailreservationapp.service.autoclick.AutoClickCommand
 import com.example.korailreservationapp.service.data.AFTER_DAY
 import com.example.korailreservationapp.service.data.BEFORE_DAY
 import com.example.korailreservationapp.service.data.Ticket
@@ -34,11 +33,12 @@ class NodeInfoCollector(private val service: KorailReservationService) {
         getTicketInfo(it)
     }
 
-    suspend fun collectPrevNextNode(): Flow<List<AccessibilityNodeInfo>> = collectNodeInfo().map { node ->
-        node.filter {
-            it.text.contains(BEFORE_DAY) or it.text.contains(AFTER_DAY)
+    suspend fun collectPrevNextNode(): Flow<List<AccessibilityNodeInfo>> =
+        collectNodeInfo().map { node ->
+            node.filter {
+                it.text.contains(BEFORE_DAY) or it.text.contains(AFTER_DAY)
+            }
         }
-    }
 
     private fun getTicketInfo(list: List<AccessibilityNodeInfo>): List<Ticket> {
         var ticketList = ArrayList<Ticket>()
@@ -49,7 +49,8 @@ class NodeInfoCollector(private val service: KorailReservationService) {
             } else if (list[idx].text.contains(AFTER_DAY)) {
                 afterNode = list[idx]
             } else if (list[idx].isTrainInfoNode() && list[idx].getPosition().second < 2100f) {
-                ticketList.add(list.makeTicket(idx))
+                val ticket = list.makeTicket(idx)
+                ticket?.let { ticketList.add(it) }
             }
         }
         return ticketList
