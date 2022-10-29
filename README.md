@@ -2,8 +2,8 @@
 <hr/>
 
 ## Description
-Subject : Korail 자동 예매 앱
-Purpose : 매진된 티켓에 대해 매크로 로직을 구현해 자동 예약을 해줌
+Subject : Korail 자동 예매 앱   
+Purpose : 매진된 티켓에 대해 매크로 로직을 구현해 자동 예약을 해줌   
 What to learn : 접근성 서비스를 구현해 Global한 서비스 앱 구현
 
 ## Architecture
