@@ -7,7 +7,7 @@ Purpose : 매진된 티켓에 대해 매크로 로직을 구현해 자동 예약
 What to learn : 접근성 서비스를 구현해 Global한 서비스 앱 구현
 
 ## Architecture
-구조 : MVC pattern   
+구조 : MVP pattern   
 
 ## Used skills
 * Flow : LiveData를 대체하기 위한 StateFlow/SharedFlow 사용
