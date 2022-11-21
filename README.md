@@ -8,7 +8,6 @@ What to learn : 접근성 서비스를 구현해 Global한 서비스 앱 구현
 
 ## Architecture
 구조 : MVC pattern   
-![mvc](https://user-images.githubusercontent.com/49948533/198843579-f12c7e7d-8920-4911-81c7-ecc1bb081d2d.png)
 
 ## Used skills
 * Flow : LiveData를 대체하기 위한 StateFlow/SharedFlow 사용
